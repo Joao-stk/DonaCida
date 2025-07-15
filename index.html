@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Galeria Dona Cida</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #f2f2f2;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    #foto {
+      max-width: 100%;
+      max-height: calc(100vh - 80px);
+      margin: auto;
+      display: block;
+    }
+    .botoes {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: #ffffffee;
+      display: flex;
+      justify-content: center;
+      padding: 10px 0;
+      gap: 20px;
+      box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      background-color: #3498db;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    button:hover:not(:disabled) {
+      background-color: #2980b9;
+    }
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+
+  <img id="foto" src="" alt="Imagem da Galeria">
+
+  <div class="botoes">
+    <button id="btnAnterior" onclick="voltar()">Anterior</button>
+    <button id="btnProxima" onclick="avancar()">Próxima</button>
+  </div>
+
+  <script>
+    let numeroAtual = 1;
+    let ultimaImagem = false;
+
+    const img = document.getElementById("foto");
+    const btnAnterior = document.getElementById("btnAnterior");
+    const btnProxima = document.getElementById("btnProxima");
+
+    function formatarNumero(num) {
+      return String(num).padStart(3, '0');
+    }
+
+    function gerarURL(numero) {
+      return `https://raw.githubusercontent.com/Joao-stk/DonaCida/main/foto${formatarNumero(numero)}.jpeg`;
+    }
+
+    async function imagemExiste(url) {
+      try {
+        const res = await fetch(url, { method: 'HEAD' });
+        return res.ok;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    async function atualizarImagem() {
+      const url = gerarURL(numeroAtual);
+      img.src = url;
+
+      // Verifica se existe próxima imagem
+      const proximaURL = gerarURL(numeroAtual + 1);
+      ultimaImagem = !(await imagemExiste(proximaURL));
+
+      // Atualiza botões
+      btnAnterior.disabled = numeroAtual <= 1;
+      btnProxima.disabled = ultimaImagem;
+    }
+
+    function voltar() {
+      if (numeroAtual > 1) {
+        numeroAtual--;
+        atualizarImagem();
+      }
+    }
+
+    function avancar() {
+      if (!ultimaImagem) {
+        numeroAtual++;
+        atualizarImagem();
+      }
+    }
+
+    // Carrega a primeira imagem
+    atualizarImagem();
+  </script>
+
+</body>
+</html>
